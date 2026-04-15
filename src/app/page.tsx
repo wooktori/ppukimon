@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import PokemonCard from "@/components/PokemonCard";
 import Pagination from "@/components/Pagination";
 import SearchBar from "@/components/SearchBar";
@@ -6,43 +7,45 @@ import koNames from "@/data/ko-names.json";
 
 const LIMIT = 20;
 
-const CACHE = { cache: "force-cache" } as const;
+const getPokemonWithKo = unstable_cache(
+  async (url: string) => {
+    const id = url.split("/").filter(Boolean).pop()!;
+    const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
 
-async function getPokemonWithKo(url: string) {
-  const id = url.split("/").filter(Boolean).pop()!;
-  const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
+    const [detail, species] = await Promise.all([
+      fetch(url).then((res) => res.json()),
+      fetch(speciesUrl).then((res) => res.json()),
+    ]);
 
-  const [detail, species] = await Promise.all([
-    fetch(url, CACHE).then((res) => res.json()),
-    fetch(speciesUrl, CACHE).then((res) => res.json()),
-  ]);
+    const koName =
+      species.names.find(
+        (n: { language: { name: string }; name: string }) =>
+          n.language.name === "ko"
+      )?.name || detail.name;
 
-  const koName =
-    species.names.find(
-      (n: { language: { name: string }; name: string }) =>
-        n.language.name === "ko"
-    )?.name || detail.name;
+    const koDescription =
+      species.flavor_text_entries
+        .find(
+          (entry: { language: { name: string }; flavor_text: string }) =>
+            entry.language.name === "ko"
+        )
+        ?.flavor_text.replace(/\n|\f/g, " ") || "설명이 없습니다.";
 
-  const koDescription =
-    species.flavor_text_entries
-      .find(
-        (entry: { language: { name: string }; flavor_text: string }) =>
-          entry.language.name === "ko"
-      )
-      ?.flavor_text.replace(/\n|\f/g, " ") || "설명이 없습니다.";
+    const types: string[] = detail.types.map(
+      (t: { type: { name: string } }) => t.type.name
+    );
 
-  const types: string[] = detail.types.map(
-    (t: { type: { name: string } }) => t.type.name
-  );
-
-  return {
-    id: detail.id,
-    englishName: detail.name,
-    koreanName: koName,
-    description: koDescription,
-    types,
-  };
-}
+    return {
+      id: detail.id,
+      englishName: detail.name,
+      koreanName: koName,
+      description: koDescription,
+      types,
+    };
+  },
+  ["pokemon-detail"],
+  { revalidate: 86400 }
+);
 
 async function searchPokemon(query: string) {
   const trimmed = query.trim();
@@ -200,7 +203,7 @@ export default async function Home({
   const offset = (currentPage - 1) * LIMIT;
   const res = await fetch(
     `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`,
-    CACHE
+    { next: { revalidate: 86400 } }
   );
   const data = await res.json();
   const totalPages = Math.ceil(data.count / LIMIT);
