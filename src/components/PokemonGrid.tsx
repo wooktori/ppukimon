@@ -122,7 +122,7 @@ export default async function PokemonGrid({ query, activeType, currentPage }: Po
           </div>
         ) : (
           <div className={gridClass}>
-            {pokemons.map((p) => <PokemonCard key={p.id} {...p} />)}
+            {pokemons.map((p, i) => <PokemonCard key={p.id} {...p} priority={i < 4} />)}
           </div>
         )}
       </main>
@@ -141,7 +141,7 @@ export default async function PokemonGrid({ query, activeType, currentPage }: Po
           </span>
         </div>
         <div className={gridClass}>
-          {pokemons.map((p) => <PokemonCard key={p.id} {...p} />)}
+          {pokemons.map((p, i) => <PokemonCard key={p.id} {...p} priority={i < 4} />)}
         </div>
         {totalPages > 1 && (
           <Pagination currentPage={currentPage} totalPages={totalPages} activeType={activeType} />
@@ -161,7 +161,7 @@ export default async function PokemonGrid({ query, activeType, currentPage }: Po
         </span>
       </div>
       <div className={gridClass}>
-        {pokemons.map((p) => <PokemonCard key={p.id} {...p} />)}
+        {pokemons.map((p, i) => <PokemonCard key={p.id} {...p} priority={i < 4} />)}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} />
     </main>

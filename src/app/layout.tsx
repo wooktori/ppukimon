@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 const jua = Jua({
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

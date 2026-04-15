@@ -8,6 +8,7 @@ interface PokemonCardProps {
   englishName: string;
   description: string;
   types: string[];
+  priority?: boolean;
 }
 
 export default function PokemonCard({
@@ -16,6 +17,7 @@ export default function PokemonCard({
   englishName,
   description,
   types,
+  priority = false,
 }: PokemonCardProps) {
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
@@ -30,6 +32,8 @@ export default function PokemonCard({
           alt={koreanName}
           width={120}
           height={120}
+          sizes="120px"
+          priority={priority}
           className="drop-shadow-md group-hover:scale-110 transition-transform duration-300"
         />
       </div>
