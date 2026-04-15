@@ -2,6 +2,7 @@ import PokemonCard from "@/components/PokemonCard";
 import Pagination from "@/components/Pagination";
 import SearchBar from "@/components/SearchBar";
 import TypeFilter from "@/components/TypeFilter";
+import koNames from "@/data/ko-names.json";
 
 const LIMIT = 20;
 
@@ -37,7 +38,7 @@ async function getPokemonWithKo(url: string) {
 }
 
 async function searchPokemon(query: string) {
-  const trimmed = query.toLowerCase();
+  const trimmed = query.trim();
 
   if (/^\d+$/.test(trimmed)) {
     try {
@@ -47,13 +48,26 @@ async function searchPokemon(query: string) {
     }
   }
 
+  // 한글 검색
+  if (/[가-힣]/.test(trimmed)) {
+    const matches = Object.entries(koNames as Record<string, number>)
+      .filter(([name]) => name.includes(trimmed))
+      .slice(0, 20);
+    return Promise.all(
+      matches.map(([, id]) =>
+        getPokemonWithKo(`https://pokeapi.co/api/v2/pokemon/${id}/`)
+      )
+    );
+  }
+
+  // 영문 검색
   const res = await fetch(
     "https://pokeapi.co/api/v2/pokemon?limit=2000&offset=0",
     { next: { revalidate: 86400 } }
   );
   const data = await res.json();
   const matches = (data.results as { name: string; url: string }[]).filter(
-    (p) => p.name.includes(trimmed)
+    (p) => p.name.includes(trimmed.toLowerCase())
   );
 
   return Promise.all(matches.slice(0, 20).map((p) => getPokemonWithKo(p.url)));
