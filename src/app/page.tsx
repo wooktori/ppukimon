@@ -1,6 +1,7 @@
 import PokemonCard from "@/components/PokemonCard";
 import Pagination from "@/components/Pagination";
 import SearchBar from "@/components/SearchBar";
+import TypeFilter from "@/components/TypeFilter";
 
 const LIMIT = 20;
 
@@ -51,20 +52,45 @@ async function searchPokemon(query: string) {
     { next: { revalidate: 86400 } }
   );
   const data = await res.json();
-  const matches = (data.results as { name: string; url: string }[]).filter((p) =>
-    p.name.includes(trimmed)
+  const matches = (data.results as { name: string; url: string }[]).filter(
+    (p) => p.name.includes(trimmed)
   );
 
   return Promise.all(matches.slice(0, 20).map((p) => getPokemonWithKo(p.url)));
 }
 
+async function getPokemonByType(typeName: string, page: number) {
+  const res = await fetch(`https://pokeapi.co/api/v2/type/${typeName}`, {
+    next: { revalidate: 86400 },
+  });
+  const data = await res.json();
+
+  const allUrls = (
+    data.pokemon as { pokemon: { name: string; url: string } }[]
+  )
+    .map((p) => p.pokemon.url)
+    .filter((url) => {
+      const id = parseInt(url.split("/").filter(Boolean).pop() ?? "0");
+      return id >= 1 && id <= 1025;
+    });
+
+  const total = allUrls.length;
+  const offset = (page - 1) * LIMIT;
+  const pageUrls = allUrls.slice(offset, offset + LIMIT);
+  const pokemons = await Promise.all(pageUrls.map((url) => getPokemonWithKo(url)));
+
+  return { pokemons, total, totalPages: Math.ceil(total / LIMIT) };
+}
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; query?: string }>;
+  searchParams: Promise<{ page?: string; query?: string; type?: string }>;
 }) {
-  const { page: pageParam, query: queryParam } = await searchParams;
+  const { page: pageParam, query: queryParam, type: typeParam } = await searchParams;
   const query = queryParam?.trim() ?? "";
+  const activeType = typeParam?.trim() ?? "";
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10));
 
   const hero = (
     <section className="bg-gradient-to-b from-yellow-200 to-yellow-50 py-12 px-4 text-center">
@@ -78,9 +104,11 @@ export default async function Home({
         포켓몬의 이름, 타입, 설명을 한눈에 확인해보세요.
       </p>
       <SearchBar initialQuery={query} />
+      {!query && <TypeFilter activeType={activeType} />}
     </section>
   );
 
+  // 검색 모드
   if (query) {
     const pokemons = await searchPokemon(query);
     return (
@@ -115,9 +143,40 @@ export default async function Home({
     );
   }
 
-  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10));
-  const offset = (currentPage - 1) * LIMIT;
+  // 타입 필터 모드
+  if (activeType) {
+    const { pokemons, total, totalPages } = await getPokemonByType(activeType, currentPage);
+    return (
+      <>
+        {hero}
+        <main className="max-w-5xl mx-auto px-4 py-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-yellow-900">
+              타입 필터 결과
+            </h3>
+            <span className="text-sm text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full font-medium">
+              {(currentPage - 1) * LIMIT + 1}~{Math.min(currentPage * LIMIT, total)} / {total}마리
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            {pokemons.map((p) => (
+              <PokemonCard key={p.id} {...p} />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              activeType={activeType}
+            />
+          )}
+        </main>
+      </>
+    );
+  }
 
+  // 기본 목록 모드
+  const offset = (currentPage - 1) * LIMIT;
   const res = await fetch(
     `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
   );
