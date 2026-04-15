@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { TYPE_KO, TYPE_COLORS } from "@/lib/pokemon-types";
 
 interface PokemonCardProps {
   id: number;
@@ -7,48 +9,6 @@ interface PokemonCardProps {
   description: string;
   types: string[];
 }
-
-const TYPE_KO: Record<string, string> = {
-  normal: "노말",
-  fire: "불꽃",
-  water: "물",
-  grass: "풀",
-  electric: "전기",
-  ice: "얼음",
-  fighting: "격투",
-  poison: "독",
-  ground: "땅",
-  flying: "비행",
-  psychic: "에스퍼",
-  bug: "벌레",
-  rock: "바위",
-  ghost: "고스트",
-  dragon: "드래곤",
-  dark: "악",
-  steel: "강철",
-  fairy: "페어리",
-};
-
-const TYPE_COLORS: Record<string, string> = {
-  normal: "bg-gray-300 text-gray-700",
-  fire: "bg-orange-400 text-white",
-  water: "bg-blue-400 text-white",
-  grass: "bg-green-400 text-white",
-  electric: "bg-yellow-300 text-yellow-800",
-  ice: "bg-cyan-300 text-cyan-800",
-  fighting: "bg-red-500 text-white",
-  poison: "bg-purple-400 text-white",
-  ground: "bg-amber-500 text-white",
-  flying: "bg-indigo-300 text-indigo-800",
-  psychic: "bg-pink-400 text-white",
-  bug: "bg-lime-400 text-lime-800",
-  rock: "bg-stone-400 text-white",
-  ghost: "bg-violet-500 text-white",
-  dragon: "bg-blue-600 text-white",
-  dark: "bg-neutral-700 text-white",
-  steel: "bg-slate-400 text-white",
-  fairy: "bg-rose-300 text-rose-800",
-};
 
 export default function PokemonCard({
   id,
@@ -60,7 +20,7 @@ export default function PokemonCard({
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
   return (
-    <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border border-yellow-100">
+    <Link href={`/pokemon/${id}`} className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border border-yellow-100 block">
       <div className="absolute top-3 left-3 bg-yellow-100 text-yellow-600 text-xs font-bold px-2 py-0.5 rounded-full">
         #{String(id).padStart(3, "0")}
       </div>
@@ -90,6 +50,6 @@ export default function PokemonCard({
           {description}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
