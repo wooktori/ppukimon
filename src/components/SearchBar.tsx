@@ -24,7 +24,7 @@ export default function SearchBar({ initialQuery }: { initialQuery: string }) {
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="영문명 또는 번호 (예: pikachu, 25)"
+          placeholder="이름 또는 번호 (예: 피카츄, 25)"
           className="w-full px-4 py-2.5 pr-9 rounded-xl border-2 border-yellow-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-yellow-500 text-sm"
         />
         {value && (

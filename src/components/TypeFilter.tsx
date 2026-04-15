@@ -4,9 +4,24 @@ import { useRouter } from "next/navigation";
 import { TYPE_KO, TYPE_COLORS } from "@/lib/pokemon-types";
 
 const ALL_TYPES = [
-  "normal", "fire", "water", "grass", "electric", "ice",
-  "fighting", "poison", "ground", "flying", "psychic", "bug",
-  "rock", "ghost", "dragon", "dark", "steel", "fairy",
+  "normal",
+  "fire",
+  "water",
+  "grass",
+  "electric",
+  "ice",
+  "fighting",
+  "poison",
+  "ground",
+  "flying",
+  "psychic",
+  "bug",
+  "rock",
+  "ghost",
+  "dragon",
+  "dark",
+  "steel",
+  "fairy",
 ];
 
 export default function TypeFilter({ activeType }: { activeType: string }) {
@@ -22,11 +37,12 @@ export default function TypeFilter({ activeType }: { activeType: string }) {
         <button
           key={type}
           onClick={() => handleClick(type)}
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap
+          className={`text-xs hover:cursor-pointer font-semibold px-3 py-1.5 rounded-full transition-all whitespace-nowrap
             ${TYPE_COLORS[type]}
-            ${activeType === type
-              ? "ring-2 ring-offset-1 ring-gray-500 scale-105"
-              : "opacity-60 hover:opacity-100"
+            ${
+              activeType === type
+                ? "ring-2 ring-offset-1 ring-gray-500 scale-105"
+                : "opacity-60 hover:opacity-100"
             }`}
         >
           {TYPE_KO[type]}
