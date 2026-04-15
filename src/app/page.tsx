@@ -1,16 +1,24 @@
 import PokemonCard from "@/components/PokemonCard";
+import Pagination from "@/components/Pagination";
+
+const LIMIT = 20;
 
 async function getPokemonWithKo(url: string) {
   const detail = await fetch(url).then((res) => res.json());
   const species = await fetch(detail.species.url).then((res) => res.json());
 
   const koName =
-    species.names.find((n: { language: { name: string }; name: string }) => n.language.name === "ko")?.name ||
-    detail.name;
+    species.names.find(
+      (n: { language: { name: string }; name: string }) =>
+        n.language.name === "ko"
+    )?.name || detail.name;
 
   const koDescription =
     species.flavor_text_entries
-      .find((entry: { language: { name: string }; flavor_text: string }) => entry.language.name === "ko")
+      .find(
+        (entry: { language: { name: string }; flavor_text: string }) =>
+          entry.language.name === "ko"
+      )
       ?.flavor_text.replace(/\n|\f/g, " ") || "설명이 없습니다.";
 
   const types: string[] = detail.types.map(
@@ -26,11 +34,21 @@ async function getPokemonWithKo(url: string) {
   };
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10));
+  const offset = (currentPage - 1) * LIMIT;
+
   const res = await fetch(
-    "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0"
+    `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
   );
   const data = await res.json();
+
+  const totalPages = Math.ceil(data.count / LIMIT);
 
   const pokemons = await Promise.all(
     data.results.map((p: { url: string }) => getPokemonWithKo(p.url))
@@ -52,13 +70,13 @@ export default async function Home() {
 
       <main className="max-w-5xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-yellow-900">
-            전체 포켓몬
-          </h3>
+          <h3 className="text-lg font-bold text-yellow-900">전체 포켓몬</h3>
           <span className="text-sm text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full font-medium">
-            {pokemons.length}마리
+            {offset + 1}~{Math.min(offset + LIMIT, data.count)} /{" "}
+            {data.count.toLocaleString()}마리
           </span>
         </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
           {pokemons.map((p) => (
             <PokemonCard
@@ -71,6 +89,8 @@ export default async function Home() {
             />
           ))}
         </div>
+
+        <Pagination currentPage={currentPage} totalPages={totalPages} />
       </main>
     </>
   );
