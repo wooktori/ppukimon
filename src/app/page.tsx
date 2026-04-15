@@ -13,11 +13,16 @@ async function getPokemonWithKo(url: string) {
       .find((entry: any) => entry.language.name === "ko")
       ?.flavor_text.replace(/\n|\f/g, " ") || "설명이 없습니다.";
 
+  const types: string[] = detail.types.map(
+    (t: { type: { name: string } }) => t.type.name
+  );
+
   return {
     id: detail.id,
     englishName: detail.name,
     koreanName: koName,
     description: koDescription,
+    types,
   };
 }
 
@@ -41,6 +46,7 @@ export default async function Home() {
             koreanName={p.koreanName}
             englishName={p.englishName}
             description={p.description}
+            types={p.types}
           />
         ))}
       </div>
