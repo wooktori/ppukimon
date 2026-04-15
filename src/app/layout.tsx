@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Sour_Gummy, Nanum_Pen_Script } from "next/font/google";
+import { Jua } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 
-const sourGummy = Sour_Gummy({
-  variable: "--font-sour-gummy",
+const jua = Jua({
+  weight: "400",
   subsets: ["latin"],
-});
-
-const nanumPenScript = Nanum_Pen_Script({
-  variable: "--font-nanum-pen-script",
-  subsets: ["latin"],
-  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -24,10 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${sourGummy.className} ${nanumPenScript.className} antialiased`}
-      >
+    <html lang="ko" trancy-version="7.8.7">
+      <body className={`${jua.className} antialiased`}>
         <Header />
         {children}
       </body>
