@@ -6,9 +6,16 @@ import koNames from "@/data/ko-names.json";
 
 const LIMIT = 20;
 
+const CACHE = { cache: "force-cache" } as const;
+
 async function getPokemonWithKo(url: string) {
-  const detail = await fetch(url).then((res) => res.json());
-  const species = await fetch(detail.species.url).then((res) => res.json());
+  const id = url.split("/").filter(Boolean).pop()!;
+  const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${id}/`;
+
+  const [detail, species] = await Promise.all([
+    fetch(url, CACHE).then((res) => res.json()),
+    fetch(speciesUrl, CACHE).then((res) => res.json()),
+  ]);
 
   const koName =
     species.names.find(
@@ -192,7 +199,8 @@ export default async function Home({
   // 기본 목록 모드
   const offset = (currentPage - 1) * LIMIT;
   const res = await fetch(
-    `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`
+    `https://pokeapi.co/api/v2/pokemon?limit=${LIMIT}&offset=${offset}`,
+    CACHE
   );
   const data = await res.json();
   const totalPages = Math.ceil(data.count / LIMIT);

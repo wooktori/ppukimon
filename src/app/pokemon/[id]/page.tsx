@@ -27,10 +27,10 @@ export default async function PokemonDetailPage({
 }) {
   const { id } = await params;
 
-  const detail = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(
-    (r) => r.json()
-  );
-  const species = await fetch(detail.species.url).then((r) => r.json());
+  const [detail, species] = await Promise.all([
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`, { cache: "force-cache" }).then((r) => r.json()),
+    fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`, { cache: "force-cache" }).then((r) => r.json()),
+  ]);
 
   const koName =
     species.names.find(
