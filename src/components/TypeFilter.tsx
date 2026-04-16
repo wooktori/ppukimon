@@ -3,27 +3,6 @@
 import { useRouter } from "next/navigation";
 import { TYPE_KO, TYPE_COLORS } from "@/lib/pokemon-types";
 
-const ALL_TYPES = [
-  "normal",
-  "fire",
-  "water",
-  "grass",
-  "electric",
-  "ice",
-  "fighting",
-  "poison",
-  "ground",
-  "flying",
-  "psychic",
-  "bug",
-  "rock",
-  "ghost",
-  "dragon",
-  "dark",
-  "steel",
-  "fairy",
-];
-
 export default function TypeFilter({ activeType }: { activeType: string }) {
   const router = useRouter();
 
@@ -33,7 +12,7 @@ export default function TypeFilter({ activeType }: { activeType: string }) {
 
   return (
     <div className="flex gap-2 flex-wrap justify-center mt-5">
-      {ALL_TYPES.map((type) => (
+      {Object.keys(TYPE_KO).map((type) => (
         <button
           key={type}
           onClick={() => handleClick(type)}

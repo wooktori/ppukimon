@@ -135,7 +135,7 @@ export default async function PokemonGrid({
           {offset + 1}~{Math.min(offset + LIMIT, total)} / {total.toLocaleString()}마리
         </span>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+      <div className={gridClass}>
         {visiblePokemons.map((p, i) => (
           <PokemonCard key={p.id} {...p} priority={!hideFirst && i < 4} />
         ))}

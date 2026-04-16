@@ -39,3 +39,21 @@ export const TYPE_COLORS: Record<string, string> = {
   steel: "bg-slate-400 text-white",
   fairy: "bg-rose-300 text-rose-800",
 };
+
+export const STAT_KO: Record<string, string> = {
+  hp: "HP",
+  attack: "공격",
+  defense: "방어",
+  "special-attack": "특수공격",
+  "special-defense": "특수방어",
+  speed: "스피드",
+};
+
+export const STAT_COLORS: Record<string, string> = {
+  hp: "bg-red-400",
+  attack: "bg-orange-400",
+  defense: "bg-yellow-400",
+  "special-attack": "bg-blue-400",
+  "special-defense": "bg-green-400",
+  speed: "bg-pink-400",
+};

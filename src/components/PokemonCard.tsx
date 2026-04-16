@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { TYPE_KO, TYPE_COLORS } from "@/lib/pokemon-types";
+import { getPokemonImageUrl } from "@/lib/pokemon";
 
 interface PokemonCardProps {
   id: number;
@@ -19,8 +20,6 @@ export default function PokemonCard({
   types,
   priority = false,
 }: PokemonCardProps) {
-  const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-
   return (
     <Link href={`/pokemon/${id}`} className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border border-yellow-100 block">
       <div className="absolute top-3 left-3 bg-yellow-100 text-yellow-600 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -28,7 +27,7 @@ export default function PokemonCard({
       </div>
       <div className="bg-yellow-50 flex items-center justify-center pt-10 pb-4 px-4">
         <Image
-          src={imageUrl}
+          src={getPokemonImageUrl(id)}
           alt={koreanName}
           width={120}
           height={120}
