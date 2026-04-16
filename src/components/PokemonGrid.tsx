@@ -63,21 +63,45 @@ async function fetchByQuery(query: string) {
   return Promise.all(matches.map((p) => getPokemonWithKo(p.url)));
 }
 
+// 기본 1페이지에서 그리드 안 Suspense에 사용 — 카드 2~20을 fragment로 반환
+export async function PokemonRestCards({ currentPage }: { currentPage: number }) {
+  const { pokemons } = await fetchList(currentPage);
+  return (
+    <>
+      {pokemons.slice(1).map((p) => (
+        <PokemonCard key={p.id} {...p} />
+      ))}
+    </>
+  );
+}
+
+// 기본 1페이지 카운트 배지 (별도 Suspense)
+export async function PokemonDefaultCountBadge({ currentPage }: { currentPage: number }) {
+  const { total } = await fetchList(currentPage);
+  const offset = (currentPage - 1) * LIMIT;
+  return (
+    <span className="text-sm text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full font-medium">
+      {offset + 1}~{Math.min(offset + LIMIT, total)} / {total.toLocaleString()}마리
+    </span>
+  );
+}
+
+// 기본 1페이지 페이지네이션 (별도 Suspense)
+export async function PokemonDefaultPagination({ currentPage }: { currentPage: number }) {
+  const { totalPages } = await fetchList(currentPage);
+  if (totalPages <= 1) return null;
+  return <Pagination currentPage={currentPage} totalPages={totalPages} />;
+}
+
 interface PokemonGridProps {
   query: string;
   activeType: string;
   currentPage: number;
-  hideFirst?: boolean;
 }
 
-export default async function PokemonGrid({
-  query,
-  activeType,
-  currentPage,
-  hideFirst = false,
-}: PokemonGridProps) {
-  const gridClass = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5";
+const gridClass = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5";
 
+export default async function PokemonGrid({ query, activeType, currentPage }: PokemonGridProps) {
   if (query) {
     const pokemons = await fetchByQuery(query);
     return (
@@ -126,7 +150,6 @@ export default async function PokemonGrid({
 
   const offset = (currentPage - 1) * LIMIT;
   const { pokemons, total, totalPages } = await fetchList(currentPage);
-  const visiblePokemons = hideFirst ? pokemons.slice(1) : pokemons;
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-6">
@@ -136,8 +159,8 @@ export default async function PokemonGrid({
         </span>
       </div>
       <div className={gridClass}>
-        {visiblePokemons.map((p, i) => (
-          <PokemonCard key={p.id} {...p} priority={!hideFirst && i < 4} />
+        {pokemons.map((p, i) => (
+          <PokemonCard key={p.id} {...p} priority={i < 4} />
         ))}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} />
