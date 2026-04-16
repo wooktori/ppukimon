@@ -1,41 +1,9 @@
-import { unstable_cache } from "next/cache";
+import { getPokemonWithKo } from "@/lib/pokemon";
 import PokemonCard from "@/components/PokemonCard";
 import Pagination from "@/components/Pagination";
 import koNames from "@/data/ko-names.json";
 
 const LIMIT = 20;
-
-const getPokemonWithKo = unstable_cache(
-  async (url: string) => {
-    const id = url.split("/").filter(Boolean).pop()!;
-    const [detail, species] = await Promise.all([
-      fetch(url).then((r) => r.json()),
-      fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}/`).then((r) => r.json()),
-    ]);
-
-    const koName =
-      species.names.find(
-        (n: { language: { name: string }; name: string }) => n.language.name === "ko"
-      )?.name || detail.name;
-
-    const koDescription =
-      species.flavor_text_entries
-        .find(
-          (e: { language: { name: string }; flavor_text: string }) => e.language.name === "ko"
-        )
-        ?.flavor_text.replace(/\n|\f/g, " ") || "설명이 없습니다.";
-
-    return {
-      id: detail.id,
-      englishName: detail.name,
-      koreanName: koName,
-      description: koDescription,
-      types: detail.types.map((t: { type: { name: string } }) => t.type.name) as string[],
-    };
-  },
-  ["pokemon-detail"],
-  { revalidate: 86400 }
-);
 
 async function fetchList(currentPage: number) {
   const offset = (currentPage - 1) * LIMIT;
@@ -99,9 +67,15 @@ interface PokemonGridProps {
   query: string;
   activeType: string;
   currentPage: number;
+  hideFirst?: boolean;
 }
 
-export default async function PokemonGrid({ query, activeType, currentPage }: PokemonGridProps) {
+export default async function PokemonGrid({
+  query,
+  activeType,
+  currentPage,
+  hideFirst = false,
+}: PokemonGridProps) {
   const gridClass = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5";
 
   if (query) {
@@ -152,6 +126,7 @@ export default async function PokemonGrid({ query, activeType, currentPage }: Po
 
   const offset = (currentPage - 1) * LIMIT;
   const { pokemons, total, totalPages } = await fetchList(currentPage);
+  const visiblePokemons = hideFirst ? pokemons.slice(1) : pokemons;
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-6">
@@ -160,8 +135,10 @@ export default async function PokemonGrid({ query, activeType, currentPage }: Po
           {offset + 1}~{Math.min(offset + LIMIT, total)} / {total.toLocaleString()}마리
         </span>
       </div>
-      <div className={gridClass}>
-        {pokemons.map((p, i) => <PokemonCard key={p.id} {...p} priority={i < 4} />)}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+        {visiblePokemons.map((p, i) => (
+          <PokemonCard key={p.id} {...p} priority={!hideFirst && i < 4} />
+        ))}
       </div>
       <Pagination currentPage={currentPage} totalPages={totalPages} />
     </main>
