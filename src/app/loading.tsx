@@ -1,11 +1,15 @@
 export function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl border border-yellow-100 overflow-hidden shadow-sm">
-      <div className="bg-yellow-50 h-40 animate-pulse" />
+      {/* h-44 = 176px = pt-10(40) + image(120) + pb-4(16) — 실제 카드와 동일 높이 */}
+      <div className="bg-yellow-50 h-44 animate-pulse" />
       <div className="p-4 space-y-2">
         <div className="h-5 w-3/4 bg-yellow-100 rounded-full animate-pulse" />
         <div className="h-4 w-1/2 bg-gray-100 rounded-full animate-pulse" />
         <div className="h-5 w-1/3 bg-orange-100 rounded-full animate-pulse" />
+        <div className="h-3 w-full bg-gray-100 rounded-full animate-pulse" />
+        <div className="h-3 w-5/6 bg-gray-100 rounded-full animate-pulse" />
+        <div className="h-3 w-4/6 bg-gray-100 rounded-full animate-pulse" />
       </div>
     </div>
   );

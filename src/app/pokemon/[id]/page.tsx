@@ -3,6 +3,8 @@ import Link from "next/link";
 import { TYPE_KO, TYPE_COLORS, STAT_KO, STAT_COLORS } from "@/lib/pokemon-types";
 import { getPokemonDetail, getPokemonImageUrl } from "@/lib/pokemon";
 
+export const revalidate = 86400;
+
 export default async function PokemonDetailPage({
   params,
 }: {
@@ -30,6 +32,7 @@ export default async function PokemonDetailPage({
             alt={pokemon.koreanName}
             width={200}
             height={200}
+            sizes="200px"
             className="drop-shadow-xl"
             priority
           />
